@@ -9,6 +9,7 @@ from practicum_4.dfs import GraphTraversal
 from src.plotting.graphs import plot_graph
 from src.common import AnyNxGraph
 
+import heapq
 
 class DijkstraAlgorithm(GraphTraversal):
     def __init__(self, G: AnyNxGraph) -> None:
@@ -25,17 +26,27 @@ class DijkstraAlgorithm(GraphTraversal):
         pass
 
     def run(self, node: Any) -> None:
+        distances = {node: float("inf") for node in self.G.nodes}
+        distances[node] = 0
+        paths = {node: [node]}
 
-        ##########################
-        ### PUT YOUR CODE HERE ###
-        #########################
+        heap = [(0, node)]
+        while heap:
+            curr_dist, u = heapq.heappop(heap)
+            if curr_dist > distances[u]:
+                continue
 
-        pass
-
+            self.previsit(u, path=paths[u])
+            for v in self.G.neighbors(u):
+                w = self.G[u][v].get("weight", 1.0)
+                if distances[u] + w < distances[v]:
+                    distances[v] = distances[u] + w
+                    paths[v] = paths[u] + [v]
+                    heapq.heappush(heap, (distances[v], v))
 
 if __name__ == "__main__":
     G = nx.read_edgelist(
-        Path("practicum_4") / "simple_weighted_graph_9_nodes.edgelist",
+        r"C:\Users\Alena\PycharmProjects\spbu-fundamentals-of-algorithms\practicum_4\simple_weighted_graph_9_nodes.edgelist",
         create_using=nx.Graph
     )
     plot_graph(G)
