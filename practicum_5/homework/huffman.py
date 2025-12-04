@@ -9,23 +9,51 @@ import numpy as np
 from src.plotting.graphs import plot_graph
 from src.common import AnyNxGraph, NDArrayFloat
 
-
 class HuffmanCoding:
     def __init__(self) -> None:
-
-        ##########################
-        ### PUT YOUR CODE HERE ###
-        ##########################
-
-        pass
+        self.codes = {}
+        self.root = None
 
     def encode(self, sequence: list[Any]) -> str:
+        encoded = {}
+        nodes = []
+        frequencies = {}
+        heap = []
+        counter = 0
 
-        ##########################
-        ### PUT YOUR CODE HERE ###
-        ##########################
+        for char in sequence:
+            if char not in frequencies:
+                freq = sequence.count(char)
+                frequencies[char] = freq
+                nodes.append((char, freq))
 
-        pass
+        for char, freq in nodes:
+            heapq.heappush(heap, (freq, counter, char))
+            counter += 1
+
+        while len(heap) > 0:
+            leftChar = heapq.heappop(heap)
+            rightChar = heapq.heappop(heap)
+            new_node = (leftChar[2], rightChar[2])
+            heapq.heappush(heap, (leftChar[0] + rightChar[0], counter, new_node))
+            counter += 1
+
+        self.root = heap[0][2]
+        self.codes = {}
+
+        def build_codes(node, current_code):
+            if not isinstance(node, tuple):
+                self.codes[node] = current_code
+                return
+            build_codes(node, current_code + '0')
+            build_codes(node, current_code + '1')
+
+        build_codes(self.root, "")
+
+        encoded = "".join(self.codes[ch] for ch in sequence)
+        return encoded
+
+
         
 
     def decode(self, encoded_sequence: str) -> list[Any]:
