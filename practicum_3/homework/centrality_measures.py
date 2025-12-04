@@ -26,7 +26,6 @@ def closeness_centrality(G: AnyNxGraph) -> dict[Any, float]:
         else:
             total_dist = sum(dist.values())
             closeness = dist_sum / total_dist
-            result[v] = closeness * (dist_sum / (len(G) - 1))
     return result
 
 
