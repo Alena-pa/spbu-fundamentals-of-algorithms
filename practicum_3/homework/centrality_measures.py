@@ -56,7 +56,7 @@ def eigenvector_centrality(G: AnyNxGraph) -> dict[Any, float]:
         for v in G:
             total = sum(result[u] for u in G.neighbors(v))
             new_result[v] = total
-        norm = max(new_result.values())
+        norm = np.linalg.norm(list(new_result.values()))
         for v in new_result:
             new_result[v] /= norm
         diff = max(abs(new_result[v] - result[v]) for v in G)
