@@ -10,6 +10,7 @@ from src.plotting.graphs import plot_graph
 from src.common import AnyNxGraph
 
 import heapq
+import math
 
 class DijkstraAlgorithm(GraphTraversal):
     def __init__(self, G: AnyNxGraph) -> None:
@@ -26,11 +27,11 @@ class DijkstraAlgorithm(GraphTraversal):
         pass
 
     def run(self, node: Any) -> None:
-        distances = {node: float("inf") for node in self.G.nodes}
+        distances = {node: math.inf for node in self.G}
         distances[node] = 0
         paths = {node: [node]}
-
         heap = [(0, node)]
+
         while heap:
             curr_dist, u = heapq.heappop(heap)
             if curr_dist > distances[u]:
