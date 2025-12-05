@@ -11,50 +11,42 @@ from src.common import AnyNxGraph, NDArrayFloat
 
 class HuffmanCoding:
     def __init__(self) -> None:
-        self.codes = {}
-        self.root = None
+        self.char = None
 
     def encode(self, sequence: list[Any]) -> str:
-        encoded = {}
         nodes = []
-        frequencies = {}
-        heap = []
-        counter = 0
+        freqencies = {}
 
+        #counting number of occurrences of a letter in a word
         for char in sequence:
-            if char not in frequencies:
-                freq = sequence.count(char)
-                frequencies[char] = freq
-                nodes.append((char, freq))
+            if char not in freqencies:
+                freqencies[char] = 0
+            freqencies[char] += 1
 
-        for char, freq in nodes:
-            heapq.heappush(heap, (freq, counter, char))
-            counter += 1
+        for char, freq in freqencies.items():
+            heapq.heappush(nodes, (freq, char, None, None))
 
-        while len(heap) > 0:
-            leftChar = heapq.heappop(heap)
-            rightChar = heapq.heappop(heap)
-            new_node = (leftChar[2], rightChar[2])
-            heapq.heappush(heap, (leftChar[0] + rightChar[0], counter, new_node))
-            counter += 1
+        #building huffman tree
+        while len(nodes) > 1:
+            left, right = heapq.heappop(nodes)
+            parent = (left[0] + right[0], None, left, right)
+            heapq.heappush(nodes, parent)
 
-        self.root = heap[0][2]
-        self.codes = {}
+        root = nodes[0]
+        codes = {}
 
-        def build_codes(node, current_code):
-            if not isinstance(node, tuple):
-                self.codes[node] = current_code
+        #encoding
+        def build_codes(node, current_code=""):
+            freq, char, left, right = node
+            if left is None and right is None:
+                codes[char] = current_code
                 return
-            build_codes(node, current_code + '0')
-            build_codes(node, current_code + '1')
+            build_codes(left, current_code + "0")
+            build_codes(right, current_code + "1")
 
-        build_codes(self.root, "")
-
-        encoded = "".join(self.codes[ch] for ch in sequence)
+        build_codes(root)
+        encoded = "".join(codes[char] for char in sequence)
         return encoded
-
-
-        
 
     def decode(self, encoded_sequence: str) -> list[Any]:
 
