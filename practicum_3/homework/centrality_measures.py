@@ -20,11 +20,13 @@ def closeness_centrality(G: AnyNxGraph) -> dict[Any, float]:
     result = {}
     for v in G:
         dist = nx.single_source_shortest_path_length(G, v)
+        #excluding v itself
         dist_sum = len(dist) - 1
         if dist_sum == 0:
             result[v] = 0
         else:
             total_dist = sum(dist.values())
+            #(n - 1) / sum(dist to others)
             result[v] = dist_sum / total_dist
     return result
 
@@ -39,9 +41,11 @@ def betweenness_centrality(G: AnyNxGraph) -> dict[Any, float]:
             continue
         number_of_paths = len(all_path)
         for path in all_path:
+            #Iterate through intermediate nodes excluding source s and target t
             for v in path[1: -1]:
                 result[v] += 1 / number_of_paths
     if len(nodes) > 2:
+        #Scale factor for undirected graphs:
         scale = 1 / ((len(nodes) - 1) * (len(nodes) - 2) / 2)
         result = {key: value * scale for key, value in result.items()}
     return result
@@ -56,9 +60,13 @@ def eigenvector_centrality(G: AnyNxGraph) -> dict[Any, float]:
         for v in G:
             total = sum(result[u] for u in G.neighbors(v))
             new_result[v] = total
+        #Prevents values from growing to infinity during iterations
         norm = float(np.linalg.norm(list(new_result.values())))
+
         for v in new_result:
             new_result[v] /= norm
+
+        #Calculate max difference between current and previous iteration
         diff = max(abs(new_result[v] - result[v]) for v in G)
         if diff < 1e-6:
             break
