@@ -16,6 +16,7 @@ class HuffmanCoding:
     def encode(self, sequence: list[Any]) -> str:
         nodes = []
         freqencies = {}
+        counter = 0
 
         #counting number of occurrences of a letter in a word
         for char in sequence:
@@ -24,12 +25,15 @@ class HuffmanCoding:
             freqencies[char] += 1
 
         for char, freq in freqencies.items():
-            heapq.heappush(nodes, (freq, char, None, None))
+            heapq.heappush(nodes, (freq, counter, char, None, None))
+            counter += 1
 
         #building huffman tree
         while len(nodes) > 1:
-            left, right = heapq.heappop(nodes)
-            parent = (left[0] + right[0], None, left, right)
+            left = heapq.heappop(nodes)
+            right = heapq.heappop(nodes)
+            parent = (left[0] + right[0], counter, None, left, right)
+            counter += 1
             heapq.heappush(nodes, parent)
 
         root = nodes[0]
@@ -37,7 +41,7 @@ class HuffmanCoding:
 
         #encoding
         def build_codes(node, current_code=""):
-            freq, char, left, right = node
+            freq, _, char, left, right = node
             if left is None and right is None:
                 codes[char] = current_code
                 return
@@ -73,8 +77,12 @@ class LossyCompression:
     def compress(self, time_series: NDArrayFloat) -> str:
         self.min_value = time_series.min()
         self.max_value = time_series.max()
-        self.levels = self.max_value - self.min_value
-        intervals = np.linspace(self.min_value, self.max_value, self.levels)
+        self.levels = len(time_series)
+        intervals = np.linspace(self.min_value, self.max_value, self.levels + 1)
+
+        self.centers = []
+        for i in range(self.levels):
+            self.centers.append((intervals[i] + intervals[i + 1]) / 2)
 
         quantized = []
         for i in time_series:
@@ -98,9 +106,8 @@ if __name__ == "__main__":
     compressor = LossyCompression()
     bits = compressor.compress(ts)
     decompressed_ts = compressor.decompress(bits)
-    compression_ratio = (len(ts) * 32 * 8) / len(bits) 
+    compression_ratio = (len(ts) * 32 * 8) / len(bits)
     print(f"Compression ratio: {compression_ratio:.2f}")
 
     compression_loss = np.sqrt(np.mean((ts - decompressed_ts)**2))
     print(f"Compression loss (RMSE): {compression_loss}")
-
