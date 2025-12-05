@@ -64,7 +64,7 @@ class HuffmanCoding:
 
 class LossyCompression:
     def __init__(self) -> None:
-        self.levels = 2**32
+        self.levels = None
         self.min_value = None
         self.max_value = None
         self.huffman = HuffmanCoding()
@@ -73,10 +73,8 @@ class LossyCompression:
     def compress(self, time_series: NDArrayFloat) -> str:
         self.min_value = time_series.min()
         self.max_value = time_series.max()
+        self.levels = self.max_value - self.min_value
         intervals = np.linspace(self.min_value, self.max_value, self.levels)
-        self.centers = []
-        for i in range(len(intervals) - 1):
-            self.centers.append((intervals[i] + intervals[i + 1]) / 2)
 
         quantized = []
         for i in time_series:
