@@ -64,29 +64,35 @@ class HuffmanCoding:
 
 class LossyCompression:
     def __init__(self) -> None:
-
-        ##########################
-        ### PUT YOUR CODE HERE ###
-        ##########################
-
-        pass
+        self.levels = 2**32
+        self.min_value = None
+        self.max_value = None
+        self.huffman = HuffmanCoding()
+        self.centers = None
 
     def compress(self, time_series: NDArrayFloat) -> str:
+        self.min_value = time_series.min()
+        self.max_value = time_series.max()
+        intervals = np.linspace(self.min_value, self.max_value, self.levels)
+        self.centers = []
+        for i in range(len(intervals) - 1):
+            self.centers.append((intervals[i] + intervals[i + 1]) / 2)
 
-        ##########################
-        ### PUT YOUR CODE HERE ###
-        ##########################
+        quantized = []
+        for i in time_series:
+            index_of_value = np.searchsorted(intervals, i)
+            if index_of_value == self.levels:
+                index_of_value -= 1
+            quantized.append(index_of_value)
 
-        pass
+        encoded = self.huffman.encode(quantized)
+        return encoded
 
     def decompress(self, bits: str) -> NDArrayFloat:
+        quantized = self.huffman.decode(bits)
 
-        ##########################
-        ### PUT YOUR CODE HERE ###
-        ##########################
-
-        pass
-
+        decompressed = [self.centers[index] for index in quantized]
+        return np.array(decompressed)
 
 if __name__ == "__main__":
     ts = np.loadtxt("ts_homework_practicum_5.txt")
@@ -94,7 +100,6 @@ if __name__ == "__main__":
     compressor = LossyCompression()
     bits = compressor.compress(ts)
     decompressed_ts = compressor.decompress(bits)
-
     compression_ratio = (len(ts) * 32 * 8) / len(bits) 
     print(f"Compression ratio: {compression_ratio:.2f}")
 
