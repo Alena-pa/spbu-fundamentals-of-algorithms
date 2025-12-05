@@ -45,16 +45,21 @@ class HuffmanCoding:
             build_codes(right, current_code + "1")
 
         build_codes(root)
+        self.char = codes
         encoded = "".join(codes[char] for char in sequence)
         return encoded
 
     def decode(self, encoded_sequence: str) -> list[Any]:
+        curr_code = ""
+        decoded = []
 
-        ##########################
-        ### PUT YOUR CODE HERE ###
-        ##########################
-
-        pass
+        code_to_char = {value: key for key, value in self.char.items()}
+        for char in encoded_sequence:
+            curr_code += char
+            if curr_code in code_to_char:
+                decoded.append(code_to_char[curr_code])
+                curr_code = ""
+        return decoded
 
 
 class LossyCompression:
